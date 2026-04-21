@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit User</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+/* CARD */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.card {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* INPUTS */
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: none;
+    background: #0f172a;
+    color: white;
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+/* INFO */
+.label {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>Edit User</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="label">Username</div>
+            <input name="username" value="{{ user.username }}">
+
+            <div class="label">Email</div>
+            <input name="email" value="{{ user.email }}">
+
+            <div class="label">New Password (optional)</div>
+            <input type="password" name="password" placeholder="Leave empty if no change">
+
+            <button type="submit">Save Changes</button>
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

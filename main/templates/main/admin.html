@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin SaaS Panel</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    border-bottom: 1px solid #1f2937;
+    z-index: 1000;
+}
+
+.logo {
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.nav {
+    display: flex;
+    gap: 15px;
+}
+
+.nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.nav a:hover {
+    background: #1e293b;
+}
+
+.nav a.active {
+    background: #2563eb;
+    color: white;
+}
+
+.user-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.badge {
+    background: #22c55e;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.logout {
+    color: #ef4444;
+    text-decoration: none;
+}
+
+/* ===== LAYOUT ===== */
+.container {
+    display: flex;
+    margin-top: 70px;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    width: 220px;
+    height: calc(100vh - 70px);
+    background: #111827;
+    padding: 20px;
+    position: fixed;
+}
+
+.sidebar a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.sidebar a:hover {
+    background: #1e293b;
+}
+
+/* ===== CONTENT ===== */
+.content {
+    margin-left: 240px;
+    padding: 20px;
+    width: 100%;
+}
+
+/* ===== CARDS ===== */
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #334155;
+    text-align: left;
+}
+
+th {
+    color: #94a3b8;
+}
+
+/* ===== FILTERS ===== */
+.filter-box {
+    margin-bottom: 15px;
+}
+
+input, select {
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    margin-right: 10px;
+    background: #0f172a;
+    color: white;
+}
+
+button {
+    padding: 8px 12px;
+    background: #2563eb;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+/* BADGES */
+.admin {
+    background: #ef4444;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.user {
+    background: #22c55e;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+
+    <div class="logo">Employee Time Tracking</div>
+
+    <div class="nav">
+        <a href="/admin/?tab=dashboard"
+           class="{% if tab == 'dashboard' %}active{% endif %}">
+            Dashboard
+        </a>
+
+        <a href="/admin/?tab=users"
+           class="{% if tab == 'users' %}active{% endif %}">
+            Users
+        </a>
+
+        <a href="/admin/?tab=worklogs"
+           class="{% if tab == 'worklogs' %}active{% endif %}">
+            Work Logs
+        </a>
+    </div>
+
+    <div class="user-box">
+        <span class="badge">ADMIN</span>
+        <span>{{ request.user.username }}</span>
+        <a class="logout" href="/logout/">Logout</a>
+    </div>
+
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h3>Menu</h3>
+        <a href="/admin/?tab=dashboard">Overview</a>
+        <a href="/admin/?tab=users">Users</a>
+        <a href="/admin/?tab=worklogs">Work Logs</a>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- DASHBOARD -->
+        {% if tab == "dashboard" %}
+        <div class="card">
+            <h2>Dashboard</h2>
+            <p>Welcome to admin panel</p>
+        </div>
+        {% endif %}
+
+        <!-- USERS -->
+        {% if tab == "users" %}
+        <div class="card">
+            <h2>Users</h2>
+
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Edit</th>
+                </tr>
+
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        {% if u.is_superuser %}
+                            <span class="admin">Admin</span>
+                        {% else %}
+                            <span class="user">User</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin/edit-user/{{ u.id }}/">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+        {% endif %}
+
+        <!-- WORKLOGS -->
+        {% if tab == "worklogs" %}
+        <div class="card">
+
+            <h2>Work Logs</h2>
+
+            <!-- FILTER -->
+            <form method="GET" class="filter-box">
+                <input type="hidden" name="tab" value="worklogs">
+
+                <select name="user">
+                    <option value="">All users</option>
+                    {% for u in users %}
+                        <option value="{{ u.id }}">{{ u.username }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="date" name="date">
+
+                <button type="submit">Filter</button>
+            </form>
+
+            <!-- TABLE -->
+            <table>
+                <tr>
+                    <th>User</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Hours</th>
+                </tr>
+
+                {% for w in workdays %}
+                <tr>
+                    <td>{{ w.user.username }}</td>
+                    <td>{{ w.start_time }}</td>
+                    <td>{{ w.end_time }}</td>
+                    <td>{{ w.get_hours|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

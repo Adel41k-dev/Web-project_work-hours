@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Profile</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+/* ===== TOPBAR ===== */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    border-bottom: 1px solid #1f2937;
+    z-index: 1000;
+}
+
+.logo {
+    color: #38bdf8;
+    font-weight: bold;
+}
+
+.nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-left: 15px;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+.nav a:hover {
+    background: #1e293b;
+}
+
+.logout {
+    color: #ef4444;
+}
+
+/* ===== LAYOUT ===== */
+.container {
+    margin-top: 80px;
+    padding: 20px;
+}
+
+/* ===== CARDS ===== */
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+.start { background: #22c55e; }
+.end { background: #ef4444; }
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #334155;
+}
+
+th {
+    color: #94a3b8;
+}
+
+/* ===== INPUT ===== */
+input {
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    background: #0f172a;
+    color: white;
+}
+
+button {
+    padding: 8px 12px;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+
+    <div class="logo">TimeTracker</div>
+
+    <div class="nav">
+        <a href="/profile/">Profile</a>
+        <a href="/logout/" class="logout">Logout</a>
+    </div>
+
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+    <!-- INFO -->
+    <div class="card">
+        <h2>Hello, {{ request.user.username }}</h2>
+
+        <p>Total hours: <b>{{ total_hours|floatformat:2 }}</b></p>
+
+        {% if active_day %}
+            <a href="/end/" class="btn end">End Day</a>
+        {% else %}
+            <a href="/start/" class="btn start">Start Day</a>
+        {% endif %}
+    </div>
+
+    <!-- FILTER -->
+    <div class="card">
+        <form method="GET">
+            <input type="date" name="date">
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card">
+        <h3>My Work History</h3>
+
+        <table>
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Hours</th>
+            </tr>
+
+            {% for d in days %}
+            <tr>
+                <td>{{ d.start_time|date:"Y-m-d H:i" }}</td>
+                <td>{{ d.end_time|date:"Y-m-d H:i" }}</td>
+                <td>{{ d.get_hours|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

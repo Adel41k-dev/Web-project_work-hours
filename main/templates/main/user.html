@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Добро пожаловать, {{ user.login }}</h2>
+
+<div class="row">
+
+    <div class="col-md-4">
+        <div class="card p-4 text-center">
+            <h5>Рабочий день</h5>
+            <a href="/start/" class="btn btn-success w-100 mt-2">Начать</a>
+            <a href="/end/" class="btn btn-danger w-100 mt-2">Закончить</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4 text-center">
+            <h5>Статистика</h5>
+            <a href="/stats/" class="btn btn-info w-100 mt-2">Открыть</a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
