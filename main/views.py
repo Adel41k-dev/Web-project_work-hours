@@ -284,3 +284,13 @@ def clear_history(request, work_id):
         workday.delete()
 
     return redirect('profile')
+
+@login_required
+def admin_delete_workday(request, work_id):
+    if not request.user.is_staff:
+        return redirect("/profile/")
+
+    workday = get_object_or_404(WorkDay, id=work_id)
+    workday.delete()
+
+    return redirect("/admin/?tab=worklogs")

@@ -183,6 +183,7 @@ a {
             <option value="hours">Hours</option>
             <option value="earnings">Earnings</option>
             <option value="date">Date</option>
+
         </select>
 
         <button type="submit">Apply</button>
@@ -210,6 +211,14 @@ a {
             <td>{{ w.end_time }}</td>
             <td>{{ w.get_hours|floatformat:2 }}</td>
             <td class="money">{{ w.get_earnings|floatformat:2 }}$</td>
+            <td>
+                <form method="post" action="{% url 'admin_delete_workday' w.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">
+                        Delete
+                    </button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
