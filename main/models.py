@@ -19,10 +19,8 @@ class User(AbstractUser):
 
 class WorkDay(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
-
     is_active = models.BooleanField(default=True)
 
     def get_hours(self):
@@ -31,6 +29,5 @@ class WorkDay(models.Model):
             return round(delta.total_seconds() / 3600, 2)
         return 0
 
-    # 💰 заработок за смену
     def get_earnings(self):
-        return round(self.get_hours() * self.user.hourly_rate, 2)
+        return self.get_hours() * (self.user.hourly_rate or 100)

@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 
 from .models import WorkDay
 
@@ -82,12 +83,21 @@ def login_view(request):
 def profile(request):
     days = WorkDay.objects.filter(user=request.user).order_by("-start_time")
 
-    date = request.GET.get("date")
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+    min_money = request.GET.get("min_money")
 
-    if date:
-        days = days.filter(start_time__date=date)
+    if start:
+        days = days.filter(start_time__date__gte=start)
+
+    if end:
+        days = days.filter(start_time__date__lte=end)
 
     total_hours = sum(d.get_hours() or 0 for d in days)
+    total_money = sum(d.get_earnings() or 0 for d in days)
+
+    if min_money:
+        days = [d for d in days if d.get_earnings() >= float(min_money)]
 
     active_day = WorkDay.objects.filter(
         user=request.user,
@@ -97,7 +107,8 @@ def profile(request):
     return render(request, "main/profile.html", {
         "days": days,
         "active_day": active_day,
-        "total_hours": total_hours
+        "total_hours": total_hours,
+        "total_money": total_money
     })
 
 
@@ -199,3 +210,36 @@ def edit_user(request, user_id):
     return render(request, "main/edit_user.html", {
         "user": user
     })
+
+@login_required
+def change_password(request):
+    error = None
+
+    if request.method == "POST":
+        old_password = request.POST.get("old_password")
+        new_password1 = request.POST.get("new_password1")
+        new_password2 = request.POST.get("new_password2")
+
+        if not request.user.check_password(old_password):
+            error = "Wrong old password"
+
+        elif new_password1 != new_password2:
+            error = "Passwords do not match"
+
+        elif len(new_password1) < 4:
+            error = "Password too short"
+
+        else:
+            request.user.set_password(new_password1)
+            request.user.save()
+
+            # 🔥 важно — пересоздаём сессию правильно
+            user = authenticate(
+                username=request.user.username,
+                password=new_password1
+            )
+            login(request, user)
+
+            return redirect("/profile/")
+
+    return render(request, "main/change_password.html", {"error": error})

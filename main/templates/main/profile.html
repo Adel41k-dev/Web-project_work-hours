@@ -12,7 +12,7 @@ body {
     color: #e2e8f0;
 }
 
-/* ===== TOPBAR ===== */
+/* TOPBAR */
 .topbar {
     position: fixed;
     top: 0;
@@ -26,7 +26,6 @@ body {
     justify-content: space-between;
     padding: 0 25px;
     border-bottom: 1px solid #1f2937;
-    z-index: 1000;
 }
 
 .logo {
@@ -50,13 +49,13 @@ body {
     color: #ef4444;
 }
 
-/* ===== MAIN ===== */
+/* MAIN */
 .container {
     margin-top: 80px;
     padding: 20px;
 }
 
-/* ===== CARDS ===== */
+/* CARD */
 .card {
     background: #1e293b;
     padding: 20px;
@@ -64,25 +63,19 @@ body {
     margin-bottom: 20px;
 }
 
-/* ===== BUTTONS ===== */
+/* BUTTONS */
 .btn {
     padding: 10px 15px;
     border-radius: 8px;
     text-decoration: none;
     color: white;
     font-weight: bold;
-    display: inline-block;
 }
 
 .start { background: #22c55e; }
 .end { background: #ef4444; }
 
-.btn:disabled {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-/* ===== TABLE ===== */
+/* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -97,7 +90,7 @@ th {
     color: #94a3b8;
 }
 
-/* ===== INPUT ===== */
+/* INPUT */
 input {
     padding: 8px;
     border-radius: 8px;
@@ -119,7 +112,7 @@ button:hover {
     background: #1d4ed8;
 }
 
-/* ===== STATS GRID ===== */
+/* STATS */
 .stats {
     display: flex;
     gap: 15px;
@@ -144,14 +137,13 @@ button:hover {
 
 <!-- TOPBAR -->
 <div class="topbar">
-
     <div class="logo">TimeTracker</div>
 
     <div class="nav">
         <a href="/profile/">Profile</a>
+        <a href="/change-password/">Change Password</a>
         <a href="/logout/" class="logout">Logout</a>
     </div>
-
 </div>
 
 <!-- MAIN -->
@@ -163,10 +155,8 @@ button:hover {
 
         <p>Total hours: <b>{{ total_hours|floatformat:2 }}</b></p>
 
-        <!-- 💰 TOTAL EARNINGS -->
         <p class="money">
-            Total earnings:
-            {{ total_hours|floatformat:2 }} × {{ request.user.hourly_rate|default:100 }}$
+            Total earnings: {{ total_money|floatformat:2 }}$
         </p>
 
         <div class="stats">
@@ -185,6 +175,10 @@ button:hover {
             </div>
         </div>
 
+        {% if active_day %}
+            <p>Started at: {{ active_day.start_time|date:"H:i" }}</p>
+        {% endif %}
+
         <br>
 
         {% if active_day %}
@@ -197,7 +191,16 @@ button:hover {
     <!-- FILTER -->
     <div class="card">
         <form method="GET">
-            <input type="date" name="date">
+
+            <label>From:</label>
+            <input type="date" name="start">
+
+            <label>To:</label>
+            <input type="date" name="end">
+
+            <label>Min $:</label>
+            <input type="number" name="min_money" placeholder="0">
+
             <button type="submit">Filter</button>
         </form>
     </div>
@@ -219,9 +222,7 @@ button:hover {
                 <td>{{ d.start_time|date:"Y-m-d H:i" }}</td>
                 <td>{{ d.end_time|date:"Y-m-d H:i" }}</td>
                 <td>{{ d.get_hours|floatformat:2 }}</td>
-                <td class="money">
-                    {{ d.get_earnings|floatformat:2 }}$
-                </td>
+                <td class="money">{{ d.get_earnings|floatformat:2 }}$</td>
             </tr>
             {% endfor %}
 
