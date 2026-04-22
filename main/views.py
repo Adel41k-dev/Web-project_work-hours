@@ -145,7 +145,7 @@ def stats(request):
 
 # ---------------- ADMIN PANEL (/admin/) ----------------
 @login_required
-def admin_panel(request):
+def admin(request):
     if not request.user.is_staff:
         return redirect("/profile/")
 
