@@ -23,11 +23,6 @@ body {
 .topbar a {
     color: #cbd5e1;
     text-decoration: none;
-    margin-left: 15px;
-}
-
-.topbar a:hover {
-    color: white;
 }
 
 /* HERO */
@@ -37,26 +32,25 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    text-align: center;
 }
 
 .hero h1 {
-    font-size: 40px;
-    margin-bottom: 10px;
-}
-
-.hero p {
-    color: #94a3b8;
+    font-size: 42px;
     margin-bottom: 20px;
 }
 
+/* BUTTON */
 .btn {
-    padding: 12px 20px;
+    padding: 14px 25px;
     background: #2563eb;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
     color: white;
-    margin: 5px;
+    font-size: 16px;
+}
+
+.btn:hover {
+    background: #1d4ed8;
 }
 </style>
 </head>
@@ -67,18 +61,12 @@ body {
     <div><b>TimeTracker</b></div>
     <div>
         <a href="/login/">Login</a>
-        <a href="/register/">Register</a>
     </div>
 </div>
 
 <div class="hero">
     <h1>Track Your Work Time</h1>
-    <p>Simple SaaS system for tracking work hours</p>
-
-    <div>
-        <a href="/login/" class="btn">Login</a>
-        <a href="/register/" class="btn">Get Started</a>
-    </div>
+    <a href="/register/" class="btn">Get Started</a>
 </div>
 
 </body>

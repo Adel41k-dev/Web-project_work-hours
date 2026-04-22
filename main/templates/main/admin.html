@@ -74,39 +74,10 @@ body {
     text-decoration: none;
 }
 
-/* ===== LAYOUT ===== */
-.container {
-    display: flex;
-    margin-top: 70px;
-}
-
-/* ===== SIDEBAR ===== */
-.sidebar {
-    width: 220px;
-    height: calc(100vh - 70px);
-    background: #111827;
+/* ===== CONTENT (ВМЕСТО SIDEBAR) ===== */
+.main {
+    margin-top: 80px;
     padding: 20px;
-    position: fixed;
-}
-
-.sidebar a {
-    display: block;
-    color: #cbd5e1;
-    text-decoration: none;
-    margin-bottom: 10px;
-    padding: 8px;
-    border-radius: 8px;
-}
-
-.sidebar a:hover {
-    background: #1e293b;
-}
-
-/* ===== CONTENT ===== */
-.content {
-    margin-left: 240px;
-    padding: 20px;
-    width: 100%;
 }
 
 /* ===== CARDS ===== */
@@ -185,17 +156,17 @@ button:hover {
     <div class="logo">Employee Time Tracking</div>
 
     <div class="nav">
-        <a href="/admin/?tab=dashboard"
+        <a href="/admin-panel/?tab=dashboard"
            class="{% if tab == 'dashboard' %}active{% endif %}">
             Dashboard
         </a>
 
-        <a href="/admin/?tab=users"
+        <a href="/admin-panel/?tab=users"
            class="{% if tab == 'users' %}active{% endif %}">
             Users
         </a>
 
-        <a href="/admin/?tab=worklogs"
+        <a href="/admin-panel/?tab=worklogs"
            class="{% if tab == 'worklogs' %}active{% endif %}">
             Work Logs
         </a>
@@ -209,107 +180,92 @@ button:hover {
 
 </div>
 
-<!-- MAIN -->
-<div class="container">
+<!-- MAIN CONTENT -->
+<div class="main">
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h3>Menu</h3>
-        <a href="/admin/?tab=dashboard">Overview</a>
-        <a href="/admin/?tab=users">Users</a>
-        <a href="/admin/?tab=worklogs">Work Logs</a>
+    <!-- DASHBOARD -->
+    {% if tab == "dashboard" %}
+    <div class="card">
+        <h2>Dashboard</h2>
+        <p>Welcome to admin panel</p>
     </div>
+    {% endif %}
 
-    <!-- CONTENT -->
-    <div class="content">
+    <!-- USERS -->
+    {% if tab == "users" %}
+    <div class="card">
+        <h2>Users</h2>
 
-        <!-- DASHBOARD -->
-        {% if tab == "dashboard" %}
-        <div class="card">
-            <h2>Dashboard</h2>
-            <p>Welcome to admin panel</p>
-        </div>
-        {% endif %}
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Edit</th>
+            </tr>
 
-        <!-- USERS -->
-        {% if tab == "users" %}
-        <div class="card">
-            <h2>Users</h2>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                    {% if u.is_superuser %}
+                        <span class="admin">Admin</span>
+                    {% else %}
+                        <span class="user">User</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/admin/edit-user/{{ u.id }}/">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
 
-            <table>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Edit</th>
-                </tr>
+    </div>
+    {% endif %}
 
+    <!-- WORKLOGS -->
+    {% if tab == "worklogs" %}
+    <div class="card">
+
+        <h2>Work Logs</h2>
+
+        <form method="GET" class="filter-box">
+            <input type="hidden" name="tab" value="worklogs">
+
+            <select name="user">
+                <option value="">All users</option>
                 {% for u in users %}
-                <tr>
-                    <td>{{ u.username }}</td>
-                    <td>{{ u.email }}</td>
-                    <td>
-                        {% if u.is_superuser %}
-                            <span class="admin">Admin</span>
-                        {% else %}
-                            <span class="user">User</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="/admin/edit-user/{{ u.id }}/">Edit</a>
-                    </td>
-                </tr>
+                    <option value="{{ u.id }}">{{ u.username }}</option>
                 {% endfor %}
-            </table>
+            </select>
 
-        </div>
-        {% endif %}
+            <input type="date" name="date">
 
-        <!-- WORKLOGS -->
-        {% if tab == "worklogs" %}
-        <div class="card">
+            <button type="submit">Filter</button>
+        </form>
 
-            <h2>Work Logs</h2>
+        <table>
+            <tr>
+                <th>User</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Hours</th>
+            </tr>
 
-            <!-- FILTER -->
-            <form method="GET" class="filter-box">
-                <input type="hidden" name="tab" value="worklogs">
-
-                <select name="user">
-                    <option value="">All users</option>
-                    {% for u in users %}
-                        <option value="{{ u.id }}">{{ u.username }}</option>
-                    {% endfor %}
-                </select>
-
-                <input type="date" name="date">
-
-                <button type="submit">Filter</button>
-            </form>
-
-            <!-- TABLE -->
-            <table>
-                <tr>
-                    <th>User</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Hours</th>
-                </tr>
-
-                {% for w in workdays %}
-                <tr>
-                    <td>{{ w.user.username }}</td>
-                    <td>{{ w.start_time }}</td>
-                    <td>{{ w.end_time }}</td>
-                    <td>{{ w.get_hours|floatformat:2 }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-
-        </div>
-        {% endif %}
+            {% for w in workdays %}
+            <tr>
+                <td>{{ w.user.username }}</td>
+                <td>{{ w.start_time }}</td>
+                <td>{{ w.end_time }}</td>
+                <td>{{ w.get_hours|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
     </div>
+    {% endif %}
 
 </div>
 
