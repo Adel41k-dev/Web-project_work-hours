@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin SaaS Panel</title>
+<title>Admin Panel</title>
 
 <style>
 body {
@@ -90,22 +90,14 @@ button {
         <a href="/admin/?tab=dashboard" class="{% if tab == 'dashboard' %}active{% endif %}">Dashboard</a>
         <a href="/admin/?tab=users" class="{% if tab == 'users' %}active{% endif %}">Users</a>
         <a href="/admin/?tab=worklogs" class="{% if tab == 'worklogs' %}active{% endif %}">Work Logs</a>
+        <a href="/logout/" class="logout">Logout</a>
     </div>
 
 </div>
 
 <div class="main">
 
-<!-- DASHBOARD -->
-{% if tab == "dashboard" %}
-<div class="card">
-    <h2>Dashboard</h2>
 
-    <p>Total Users: {{ users|length }}</p>
-    <p>Total Hours: {{ total_hours|floatformat:2 }}</p>
-    <p class="money">Total Earnings: {{ total_money|floatformat:2 }}$</p>
-</div>
-{% endif %}
 
 <!-- USERS -->
 {% if tab == "users" %}

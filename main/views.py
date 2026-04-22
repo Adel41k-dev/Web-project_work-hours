@@ -81,7 +81,10 @@ def profile(request):
     total_hours = sum(d.get_hours() for d in days)
     total_money = sum(d.get_earnings() for d in days)
 
-    active_day = WorkDay.objects.filter(user=request.user, is_active=True).first()
+    active_day = WorkDay.objects.filter(
+        user=request.user,
+        is_active=True
+    ).first()
 
     return render(request, "main/profile.html", {
         "days": days,
@@ -91,15 +94,16 @@ def profile(request):
     })
 
 
-# ---------------- START ----------------
+# ---------------- START DAY ----------------
 @login_required
 def start_day(request):
     if not WorkDay.objects.filter(user=request.user, is_active=True).exists():
         WorkDay.objects.create(user=request.user)
+
     return redirect("/profile/")
 
 
-# ---------------- END ----------------
+# ---------------- END DAY ----------------
 @login_required
 def end_day(request):
     active = WorkDay.objects.filter(user=request.user, is_active=True).first()
@@ -118,7 +122,7 @@ def admin(request):
     if not request.user.is_staff:
         return redirect("/profile/")
 
-    tab = request.GET.get("tab", "dashboard")
+    tab = request.GET.get("tab", "users")
 
     users = User.objects.all()
     workdays = WorkDay.objects.select_related("user").all()
@@ -132,6 +136,7 @@ def admin(request):
     if date:
         workdays = workdays.filter(start_time__date=date)
 
+    # 🔥 ОБЩАЯ СТАТИСТИКА АДМИНА
     total_hours = sum(w.get_hours() for w in workdays)
     total_money = sum(w.get_earnings() for w in workdays)
 
@@ -142,6 +147,7 @@ def admin(request):
         "total_hours": total_hours,
         "total_money": total_money
     })
+
 
 # ---------------- EDIT USER ----------------
 @login_required
@@ -176,8 +182,10 @@ def change_password(request):
     if request.method == "POST":
         if not request.user.check_password(request.POST.get("old")):
             error = "Wrong old password"
+
         elif request.POST.get("new1") != request.POST.get("new2"):
-            error = "Mismatch"
+            error = "Passwords do not match"
+
         else:
             request.user.set_password(request.POST.get("new1"))
             request.user.save()
