@@ -162,9 +162,9 @@ button:hover {
     <div class="logo">Employee Time Tracking</div>
 
     <div class="nav">
-        <a href="/admin/?tab=dashboard" class="{% if tab == 'dashboard' %}active{% endif %}">Dashboard</a>
-        <a href="/admin/?tab=users" class="{% if tab == 'users' %}active{% endif %}">Users</a>
-        <a href="/admin/?tab=worklogs" class="{% if tab == 'worklogs' %}active{% endif %}">Work Logs</a>
+        <a href="/admin_panel/?tab=dashboard" class="{% if tab == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="/admin_panel/?tab=users" class="{% if tab == 'users' %}active{% endif %}">Users</a>
+        <a href="/admin_panel/?tab=worklogs" class="{% if tab == 'worklogs' %}active{% endif %}">Work Logs</a>
     </div>
 
     <div class="user-box">
@@ -218,7 +218,7 @@ button:hover {
             </td>
 
             <td>
-                <a href="/admin/edit-user/{{ u.id }}/">Edit</a>
+                <a href="/admin_panel/edit-user/{{ u.id }}/">Edit</a>
             </td>
         </tr>
         {% endfor %}
