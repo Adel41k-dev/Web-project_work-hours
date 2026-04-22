@@ -65,11 +65,12 @@ table {
 }
 
 th, td {
+    border: 1px solid #334155;
     padding: 10px;
-    border-bottom: 1px solid #334155;
+    text-align: left;
 }
 
-th { color: #94a3b8; }
+th { color: #94a3b8; text-align: center;}
 
 .money {
     color: #22c55e;
@@ -92,6 +93,14 @@ button {
     border-radius: 6px;
     color: white;
     cursor: pointer;
+}
+a {
+    color: white;
+    text-decoration: none;
+}
+
+.edit {
+    text-align: center;
 }
 </style>
 </head>
@@ -132,7 +141,7 @@ button {
             <td>{{ u.username }}</td>
             <td>{{ u.email }}</td>
             <td class="money">{{ u.hourly_rate }}$/h</td>
-            <td><a href="{% url 'edit_user' u.id %}">Edit</a></td>
+            <td><div class="edit"><a  href="{% url 'edit_user' u.id %}">Edit</a></div></td>
         </tr>
         {% endif %}
         {% endfor %}

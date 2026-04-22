@@ -140,7 +140,7 @@ button:hover {
     <div class="logo">TimeTracker</div>
 
     <div class="nav">
-        <a href="{% url 'profile' %}">Profile</a>
+
         <a href="{% url 'account' %}">Account</a>
         <a href="{% url 'logout' %}" class="logout">Logout</a>
     </div>
@@ -193,15 +193,25 @@ button:hover {
         <form method="GET">
 
             <label>From:</label>
-            <input type="date" name="start">
+            <input type="date" name="start" value="{{ request.GET.start }}">
 
             <label>To:</label>
-            <input type="date" name="end">
+            <input type="date" name="end" value="{{ request.GET.end }}">
 
             <label>Min $:</label>
-            <input type="number" name="min_money" placeholder="0">
+            <input type="number" name="min_earnings" placeholder="0"
+                   value="{{ request.GET.min_earnings }}">
 
-            <button type="submit">Filter</button>
+            <!-- SORT -->
+            <label>Sort:</label>
+            <select name="sort">
+                <option value="">--</option>
+                <option value="date" {% if request.GET.sort == "date" %}selected{% endif %}>Date</option>
+                <option value="hours" {% if request.GET.sort == "hours" %}selected{% endif %}>Hours</option>
+                <option value="earnings" {% if request.GET.sort == "earnings" %}selected{% endif %}>Earnings</option>
+            </select>
+
+            <button type="submit">Apply</button>
         </form>
     </div>
 
@@ -215,6 +225,7 @@ button:hover {
                 <th>End</th>
                 <th>Hours</th>
                 <th>Earnings</th>
+                <th>Delete</th>
             </tr>
 
             {% for d in days %}
@@ -223,6 +234,14 @@ button:hover {
                 <td>{{ d.end_time|date:"Y-m-d H:i" }}</td>
                 <td>{{ d.get_hours|floatformat:2 }}</td>
                 <td class="money">{{ d.get_earnings|floatformat:2 }}$</td>
+                <td><form method="post" action="{% url 'clear_history' d.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit"
+                            onclick="return confirm('Вы уверены, что хотите удалить эту запись?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
 

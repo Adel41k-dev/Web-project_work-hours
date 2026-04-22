@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Смена имени</title>
+<title>Change name</title>
 
 <style>
 body {
@@ -75,16 +75,16 @@ a {
 
 <div class="container">
     <div class="card">
-        <h2>Смена имени</h2>
+        <h2>Change name</h2>
 
         <form method="post">
             {% csrf_token %}
-            <input type="text" name="first_name" placeholder="Новое имя" required>
-            <input type="text" name="last_name" placeholder="Новая фамилия" required>
-            <button type="submit">Сохранить</button>
+            <input type="text" name="username" placeholder="New name" required>
+
+            <button type="submit">Save</button>
         </form>
 
-        <a href="{% url 'profile' %}">← Назад</a>
+        <a href="{% url 'profile' %}"> Back</a>
     </div>
 </div>
 

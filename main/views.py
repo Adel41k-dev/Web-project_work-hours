@@ -67,20 +67,41 @@ def login_view(request):
 # ---------------- PROFILE ----------------
 @login_required
 def profile(request):
-    days = WorkDay.objects.filter(user=request.user).order_by("-start_time")
+    workdays = WorkDay.objects.filter(user=request.user)
 
-    # DATE FILTER
-    date_from = request.GET.get("from")
-    date_to = request.GET.get("to")
+    start_date = request.GET.get("start")
+    end_date = request.GET.get("end")
+    min_earnings = request.GET.get("min_earnings")
+    sort = request.GET.get("sort")
 
-    if date_from:
-        days = days.filter(start_time__date__gte=date_from)
+    # ---------------- DATE FILTER ----------------
+    if start_date:
+        workdays = workdays.filter(start_time__date__gte=start_date)
 
-    if date_to:
-        days = days.filter(start_time__date__lte=date_to)
+    if end_date:
+        workdays = workdays.filter(start_time__date__lte=end_date)
 
-    total_hours = sum(d.get_hours() for d in days)
-    total_money = sum(d.get_earnings() for d in days)
+    # ---------------- MIN EARNINGS ----------------
+    if min_earnings:
+        try:
+            min_earnings = float(min_earnings)
+            workdays = [w for w in workdays if w.get_earnings() >= min_earnings]
+        except:
+            pass
+
+    # ---------------- SORT ----------------
+    if sort == "hours":
+        workdays = sorted(workdays, key=lambda x: x.get_hours(), reverse=True)
+
+    elif sort == "earnings":
+        workdays = sorted(workdays, key=lambda x: x.get_earnings(), reverse=True)
+
+    elif sort == "date":
+        workdays = sorted(workdays, key=lambda x: x.start_time, reverse=True)
+
+    # ---------------- STATS (ВАЖНО: workdays, не days) ----------------
+    total_hours = sum(d.get_hours() for d in workdays)
+    total_money = sum(d.get_earnings() for d in workdays)
 
     active_day = WorkDay.objects.filter(
         user=request.user,
@@ -88,10 +109,10 @@ def profile(request):
     ).first()
 
     return render(request, "main/profile.html", {
-        "days": days,
-        "active_day": active_day,
+        "days": workdays,
         "total_hours": total_hours,
-        "total_money": total_money
+        "total_money": total_money,
+        "active_day": active_day,
     })
 
 
@@ -254,3 +275,12 @@ def edit_email(request):
         return redirect("account")
 
     return render(request, "main/change_email.html")
+
+
+@login_required
+def clear_history(request, work_id):
+    if request.method == "POST":
+        workday = get_object_or_404(WorkDay, id=work_id, user=request.user)
+        workday.delete()
+
+    return redirect('profile')

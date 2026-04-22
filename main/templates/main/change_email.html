@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Смена почты</title>
+<title>Change email</title>
 
 <style>
 body {
@@ -75,12 +75,12 @@ a {
 
 <div class="container">
     <div class="card">
-        <h2>Смена почты</h2>
+        <h2>Change email</h2>
 
         <form method="post">
             {% csrf_token %}
-            <input type="email" name="email" placeholder="Новая почта" required>
-            <button type="submit">Обновить</button>
+            <input type="email" name="email" placeholder="New email" required>
+            <button type="submit">Save</button>
         </form>
 
         <a href="{% url 'profile' %}">← Назад</a>
