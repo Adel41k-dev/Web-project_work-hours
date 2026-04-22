@@ -43,8 +43,12 @@ body {
     color: white;
 }
 
+.logout {
+    color: #f87171;
+}
+
 .main {
-    margin-top: 80px;
+    margin-top: 90px;
     padding: 20px;
 }
 
@@ -67,7 +71,19 @@ th, td {
 
 th { color: #94a3b8; }
 
-.money { color: #22c55e; font-weight: bold; }
+.money {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+input, select {
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    margin-right: 8px;
+    background: #0f172a;
+    color: white;
+}
 
 button {
     padding: 8px 12px;
@@ -75,6 +91,7 @@ button {
     border: none;
     border-radius: 6px;
     color: white;
+    cursor: pointer;
 }
 </style>
 </head>
@@ -87,7 +104,6 @@ button {
     <div class="logo">TimeTracker Admin</div>
 
     <div class="nav">
-        <a href="/admin/?tab=dashboard" class="{% if tab == 'dashboard' %}active{% endif %}">Dashboard</a>
         <a href="/admin/?tab=users" class="{% if tab == 'users' %}active{% endif %}">Users</a>
         <a href="/admin/?tab=worklogs" class="{% if tab == 'worklogs' %}active{% endif %}">Work Logs</a>
         <a href="/logout/" class="logout">Logout</a>
@@ -96,8 +112,6 @@ button {
 </div>
 
 <div class="main">
-
-
 
 <!-- USERS -->
 {% if tab == "users" %}
@@ -124,6 +138,46 @@ button {
 
 <!-- WORKLOGS -->
 {% if tab == "worklogs" %}
+
+<!-- FILTERS -->
+<div class="card">
+    <h2>Filters</h2>
+
+    <form method="GET">
+
+        <input type="hidden" name="tab" value="worklogs">
+
+        <!-- USER -->
+        <select name="user">
+            <option value="">All users</option>
+            {% for u in users %}
+                <option value="{{ u.id }}">{{ u.username }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- DATE FROM -->
+        <input type="date" name="start">
+
+        <!-- DATE TO -->
+        <input type="date" name="end">
+
+        <!-- MIN EARNINGS -->
+        <input type="number" step="0.01" name="min_earnings" placeholder="Min earnings">
+
+        <!-- SORT -->
+        <select name="sort">
+            <option value="">No sort</option>
+            <option value="hours">Hours</option>
+            <option value="earnings">Earnings</option>
+            <option value="date">Date</option>
+        </select>
+
+        <button type="submit">Apply</button>
+
+    </form>
+</div>
+
+<!-- TABLE -->
 <div class="card">
     <h2>Work Logs</h2>
 
@@ -147,6 +201,7 @@ button {
         {% endfor %}
     </table>
 </div>
+
 {% endif %}
 
 </div>

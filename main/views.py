@@ -57,10 +57,7 @@ def login_view(request):
 
         if user:
             login(request, user)
-
-            if user.is_staff:
-                return redirect("/admin/")
-            return redirect("/profile/")
+            return redirect("/admin/" if user.is_staff else "/profile/")
         else:
             error = "Wrong credentials"
 
@@ -72,11 +69,15 @@ def login_view(request):
 def profile(request):
     days = WorkDay.objects.filter(user=request.user).order_by("-start_time")
 
+    # DATE FILTER
     date_from = request.GET.get("from")
     date_to = request.GET.get("to")
 
-    if date_from and date_to:
-        days = days.filter(start_time__date__range=[date_from, date_to])
+    if date_from:
+        days = days.filter(start_time__date__gte=date_from)
+
+    if date_to:
+        days = days.filter(start_time__date__lte=date_to)
 
     total_hours = sum(d.get_hours() for d in days)
     total_money = sum(d.get_earnings() for d in days)
@@ -97,8 +98,14 @@ def profile(request):
 # ---------------- START DAY ----------------
 @login_required
 def start_day(request):
-    if not WorkDay.objects.filter(user=request.user, is_active=True).exists():
-        WorkDay.objects.create(user=request.user)
+    active = WorkDay.objects.filter(user=request.user, is_active=True).exists()
+
+    if not active:
+        WorkDay.objects.create(
+            user=request.user,
+            start_time=timezone.now(),
+            is_active=True
+        )
 
     return redirect("/profile/")
 
@@ -116,7 +123,7 @@ def end_day(request):
     return redirect("/profile/")
 
 
-# ---------------- ADMIN PANEL ----------------
+# ---------------- ADMIN PANEL (🔥 UPGRADED) ----------------
 @login_required
 def admin(request):
     if not request.user.is_staff:
@@ -127,16 +134,38 @@ def admin(request):
     users = User.objects.all()
     workdays = WorkDay.objects.select_related("user").all()
 
+    # ---------------- FILTERS ----------------
     user_id = request.GET.get("user")
-    date = request.GET.get("date")
+    start_date = request.GET.get("start")
+    end_date = request.GET.get("end")
+    min_earnings = request.GET.get("min_earnings")
+    sort = request.GET.get("sort")
 
     if user_id:
         workdays = workdays.filter(user_id=user_id)
 
-    if date:
-        workdays = workdays.filter(start_time__date=date)
+    if start_date:
+        workdays = workdays.filter(start_time__date__gte=start_date)
 
-    # 🔥 ОБЩАЯ СТАТИСТИКА АДМИНА
+    if end_date:
+        workdays = workdays.filter(start_time__date__lte=end_date)
+
+    # ---------------- MIN EARNINGS (computed field) ----------------
+    if min_earnings:
+        min_earnings = float(min_earnings)
+        workdays = [w for w in workdays if w.get_earnings() >= min_earnings]
+
+    # ---------------- SORTING ----------------
+    if sort == "hours":
+        workdays = sorted(workdays, key=lambda x: x.get_hours(), reverse=True)
+
+    elif sort == "earnings":
+        workdays = sorted(workdays, key=lambda x: x.get_earnings(), reverse=True)
+
+    elif sort == "date":
+        workdays = sorted(workdays, key=lambda x: x.start_time, reverse=True)
+
+    # ---------------- TOTAL STATS ----------------
     total_hours = sum(w.get_hours() for w in workdays)
     total_money = sum(w.get_earnings() for w in workdays)
 
