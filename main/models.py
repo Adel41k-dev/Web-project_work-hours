@@ -4,16 +4,11 @@ from django.conf import settings
 
 
 class User(AbstractUser):
-    """
-    SaaS пользователь (расширенный Django User)
-    """
-
     email = models.EmailField(unique=True)
-
     position = models.CharField(max_length=100, blank=True, null=True)
     is_employee = models.BooleanField(default=True)
 
-    # 💰 почасовая ставка (по умолчанию 100$)
+    # 💰 зарплата в час
     hourly_rate = models.FloatField(default=100)
 
 
@@ -30,4 +25,4 @@ class WorkDay(models.Model):
         return 0
 
     def get_earnings(self):
-        return self.get_hours() * (self.user.hourly_rate or 100)
+        return round(self.get_hours() * self.user.hourly_rate, 2)
