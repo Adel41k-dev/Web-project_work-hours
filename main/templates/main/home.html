@@ -1,14 +1,85 @@
-{% extends 'main/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
 
-{% block content %}
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
 
-<div class="hero">
-    <div class="hero-box">
-        <h1>Employee Time Tracking</h1>
-        <p>Simple, fast and modern system for tracking working hours.</p>
+/* TOPBAR */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+    background: #111827;
+}
 
-        <a class="btn" href="/login/">Get Started</a>
+.topbar a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+.topbar a:hover {
+    color: white;
+}
+
+/* HERO */
+.hero {
+    display: flex;
+    height: 80vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 12px 20px;
+    background: #2563eb;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    margin: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <div><b>TimeTracker</b></div>
+    <div>
+        <a href="/login/">Login</a>
+        <a href="/register/">Register</a>
     </div>
 </div>
 
-{% endblock %}
+<div class="hero">
+    <h1>Track Your Work Time</h1>
+    <p>Simple SaaS system for tracking work hours</p>
+
+    <div>
+        <a href="/login/" class="btn">Login</a>
+        <a href="/register/" class="btn">Get Started</a>
+    </div>
+</div>
+
+</body>
+</html>

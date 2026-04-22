@@ -1,37 +1,92 @@
-{% load static %}
-{% if error %}
-<div style="
-    color: #ff6b6b;
-    text-align:center;
-    margin-bottom:10px;
-    font-size:14px;">
-    {{ error }}
-</div>
-{% endif %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+<meta charset="UTF-8">
+<title>Login</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+/* CENTER */
+.container {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 12px;
+    width: 350px;
+}
+
+h2 {
+    text-align: center;
+}
+
+/* INPUT */
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: none;
+    background: #0f172a;
+    color: white;
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 10px;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+/* ERROR */
+.error {
+    color: #ef4444;
+    text-align: center;
+}
+</style>
 </head>
+
 <body>
 
-<div class="auth-wrapper">
+<div class="container">
 
-    <form class="auth-box" method="POST">
-        {% csrf_token %}
+    <div class="card">
 
         <h2>Login</h2>
 
-        <input type="text" name="username" placeholder="Username">
-        <input type="password" name="password" placeholder="Password">
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
-        <button type="submit">Sign In</button>
+        <form method="POST">
+            {% csrf_token %}
 
-        <div class="auth-link">
-            No account? <a href="/register/">Register</a>
-        </div>
-    </form>
+            <input name="username" placeholder="Username">
+            <input type="password" name="password" placeholder="Password">
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p style="text-align:center; margin-top:10px;">
+            No account? <a href="/register/" style="color:#38bdf8;">Register</a>
+        </p>
+
+    </div>
 
 </div>
 
