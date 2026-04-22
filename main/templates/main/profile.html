@@ -50,7 +50,7 @@ body {
     color: #ef4444;
 }
 
-/* ===== LAYOUT ===== */
+/* ===== MAIN ===== */
 .container {
     margin-top: 80px;
     padding: 20px;
@@ -71,10 +71,16 @@ body {
     text-decoration: none;
     color: white;
     font-weight: bold;
+    display: inline-block;
 }
 
 .start { background: #22c55e; }
 .end { background: #ef4444; }
+
+.btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
 
 /* ===== TABLE ===== */
 table {
@@ -112,6 +118,25 @@ button {
 button:hover {
     background: #1d4ed8;
 }
+
+/* ===== STATS GRID ===== */
+.stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.stat-box {
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 10px;
+    flex: 1;
+}
+
+.money {
+    color: #22c55e;
+    font-weight: bold;
+}
 </style>
 </head>
 
@@ -138,6 +163,30 @@ button:hover {
 
         <p>Total hours: <b>{{ total_hours|floatformat:2 }}</b></p>
 
+        <!-- 💰 TOTAL EARNINGS -->
+        <p class="money">
+            Total earnings:
+            {{ total_hours|floatformat:2 }} × {{ request.user.hourly_rate|default:100 }}$
+        </p>
+
+        <div class="stats">
+            <div class="stat-box">
+                <b>Rate</b><br>
+                {{ request.user.hourly_rate|default:100 }}$/hour
+            </div>
+
+            <div class="stat-box">
+                <b>Status</b><br>
+                {% if active_day %}
+                    🟢 Working
+                {% else %}
+                    ⚪ Idle
+                {% endif %}
+            </div>
+        </div>
+
+        <br>
+
         {% if active_day %}
             <a href="/end/" class="btn end">End Day</a>
         {% else %}
@@ -162,6 +211,7 @@ button:hover {
                 <th>Start</th>
                 <th>End</th>
                 <th>Hours</th>
+                <th>Earnings</th>
             </tr>
 
             {% for d in days %}
@@ -169,6 +219,9 @@ button:hover {
                 <td>{{ d.start_time|date:"Y-m-d H:i" }}</td>
                 <td>{{ d.end_time|date:"Y-m-d H:i" }}</td>
                 <td>{{ d.get_hours|floatformat:2 }}</td>
+                <td class="money">
+                    {{ d.get_earnings|floatformat:2 }}$
+                </td>
             </tr>
             {% endfor %}
 

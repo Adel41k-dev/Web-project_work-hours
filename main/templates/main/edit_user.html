@@ -12,7 +12,7 @@ body {
     color: white;
 }
 
-/* CARD */
+/* CENTER */
 .container {
     display: flex;
     justify-content: center;
@@ -20,11 +20,12 @@ body {
     height: 100vh;
 }
 
+/* CARD */
 .card {
     background: #1e293b;
     padding: 30px;
     border-radius: 15px;
-    width: 400px;
+    width: 420px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
@@ -33,7 +34,14 @@ h2 {
     text-align: center;
 }
 
-/* INPUTS */
+/* LABEL */
+.label {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 5px;
+}
+
+/* INPUT */
 input {
     width: 100%;
     padding: 10px;
@@ -42,6 +50,13 @@ input {
     border: none;
     background: #0f172a;
     color: white;
+    outline: none;
+}
+
+/* ROW */
+.row {
+    display: flex;
+    gap: 10px;
 }
 
 /* BUTTON */
@@ -60,11 +75,11 @@ button:hover {
     background: #1d4ed8;
 }
 
-/* INFO */
-.label {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 5px;
+/* SMALL INFO */
+.hint {
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 10px;
 }
 </style>
 </head>
@@ -86,7 +101,15 @@ button:hover {
             <div class="label">Email</div>
             <input name="email" value="{{ user.email }}">
 
-            <div class="label">New Password (optional)</div>
+            <!-- 💰 ЗАРПЛАТА -->
+            <div class="label">Hourly Rate ($)</div>
+            <input name="hourly_rate" value="{{ user.hourly_rate|default:100 }}">
+
+            <div class="hint">
+                Default salary: 100$/hour
+            </div>
+
+            <div class="label">New Password</div>
             <input type="password" name="password" placeholder="Leave empty if no change">
 
             <button type="submit">Save Changes</button>

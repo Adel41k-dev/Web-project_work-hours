@@ -74,13 +74,13 @@ body {
     text-decoration: none;
 }
 
-/* ===== CONTENT (ВМЕСТО SIDEBAR) ===== */
+/* ===== MAIN ===== */
 .main {
     margin-top: 80px;
     padding: 20px;
 }
 
-/* ===== CARDS ===== */
+/* ===== CARD ===== */
 .card {
     background: #1e293b;
     padding: 20px;
@@ -95,7 +95,7 @@ table {
 }
 
 th, td {
-    padding: 10px;
+    padding: 12px;
     border-bottom: 1px solid #334155;
     text-align: left;
 }
@@ -145,6 +145,12 @@ button:hover {
     border-radius: 6px;
     font-size: 12px;
 }
+
+/* 💰 earnings */
+.money {
+    color: #22c55e;
+    font-weight: bold;
+}
 </style>
 </head>
 
@@ -156,20 +162,9 @@ button:hover {
     <div class="logo">Employee Time Tracking</div>
 
     <div class="nav">
-        <a href="/admin/?tab=dashboard"
-           class="{% if tab == 'dashboard' %}active{% endif %}">
-            Dashboard
-        </a>
-
-        <a href="/admin/?tab=users"
-           class="{% if tab == 'users' %}active{% endif %}">
-            Users
-        </a>
-
-        <a href="/admin/?tab=worklogs"
-           class="{% if tab == 'worklogs' %}active{% endif %}">
-            Work Logs
-        </a>
+        <a href="/admin/?tab=dashboard" class="{% if tab == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="/admin/?tab=users" class="{% if tab == 'users' %}active{% endif %}">Users</a>
+        <a href="/admin/?tab=worklogs" class="{% if tab == 'worklogs' %}active{% endif %}">Work Logs</a>
     </div>
 
     <div class="user-box">
@@ -180,92 +175,105 @@ button:hover {
 
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN -->
 <div class="main">
 
-    <!-- DASHBOARD -->
-    {% if tab == "dashboard" %}
-    <div class="card">
-        <h2>Dashboard</h2>
-        <p>Welcome to admin panel</p>
-    </div>
-    {% endif %}
+<!-- DASHBOARD -->
+{% if tab == "dashboard" %}
+<div class="card">
+    <h2>Dashboard</h2>
+    <p>Welcome to admin panel</p>
+</div>
+{% endif %}
 
-    <!-- USERS -->
-    {% if tab == "users" %}
-    <div class="card">
-        <h2>Users</h2>
+<!-- USERS -->
+{% if tab == "users" %}
+<div class="card">
+    <h2>Users</h2>
 
-        <table>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Edit</th>
-            </tr>
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Rate ($/h)</th>
+            <th>Edit</th>
+        </tr>
 
+        {% for u in users %}
+        <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+
+            <td>
+                {% if u.is_superuser %}
+                    <span class="admin">Admin</span>
+                {% else %}
+                    <span class="user">User</span>
+                {% endif %}
+            </td>
+
+            <td class="money">
+                {{ u.hourly_rate|default:100 }}$
+            </td>
+
+            <td>
+                <a href="/admin/edit-user/{{ u.id }}/">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+{% endif %}
+
+<!-- WORKLOGS -->
+{% if tab == "worklogs" %}
+<div class="card">
+
+    <h2>Work Logs</h2>
+
+    <form method="GET" class="filter-box">
+        <input type="hidden" name="tab" value="worklogs">
+
+        <select name="user">
+            <option value="">All users</option>
             {% for u in users %}
-            <tr>
-                <td>{{ u.username }}</td>
-                <td>{{ u.email }}</td>
-                <td>
-                    {% if u.is_superuser %}
-                        <span class="admin">Admin</span>
-                    {% else %}
-                        <span class="user">User</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="/admin/edit-user/{{ u.id }}/">Edit</a>
-                </td>
-            </tr>
+                <option value="{{ u.id }}">{{ u.username }}</option>
             {% endfor %}
-        </table>
+        </select>
 
-    </div>
-    {% endif %}
+        <input type="date" name="date">
 
-    <!-- WORKLOGS -->
-    {% if tab == "worklogs" %}
-    <div class="card">
+        <button type="submit">Filter</button>
+    </form>
 
-        <h2>Work Logs</h2>
+    <table>
+        <tr>
+            <th>User</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Hours</th>
+            <th>Earnings</th>
+        </tr>
 
-        <form method="GET" class="filter-box">
-            <input type="hidden" name="tab" value="worklogs">
+        {% for w in workdays %}
+        <tr>
+            <td>{{ w.user.username }}</td>
+            <td>{{ w.start_time }}</td>
+            <td>{{ w.end_time }}</td>
 
-            <select name="user">
-                <option value="">All users</option>
-                {% for u in users %}
-                    <option value="{{ u.id }}">{{ u.username }}</option>
-                {% endfor %}
-            </select>
+            <td>{{ w.get_hours|floatformat:2 }}</td>
 
-            <input type="date" name="date">
+            <td class="money">
+                {{ w.get_earnings|floatformat:2 }}$
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
-            <button type="submit">Filter</button>
-        </form>
-
-        <table>
-            <tr>
-                <th>User</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Hours</th>
-            </tr>
-
-            {% for w in workdays %}
-            <tr>
-                <td>{{ w.user.username }}</td>
-                <td>{{ w.start_time }}</td>
-                <td>{{ w.end_time }}</td>
-                <td>{{ w.get_hours|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-
-    </div>
-    {% endif %}
+</div>
+{% endif %}
 
 </div>
 

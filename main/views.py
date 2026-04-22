@@ -1,16 +1,20 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.contrib.auth import logout
+
 from .models import WorkDay
 
 User = get_user_model()
 
+
+# ---------------- LOGOUT ----------------
 def logout_view(request):
     logout(request)
     return redirect("/")
+
+
 # ---------------- HOME ----------------
 def home(request):
     return render(request, "main/home.html")
@@ -62,8 +66,9 @@ def login_view(request):
         if user:
             login(request, user)
 
-            if user.is_superuser or user.is_staff:
-                return redirect("/admin")
+            # 🧠 админ → /admin/
+            if user.is_staff:
+                return redirect("/admin/")
             else:
                 return redirect("/profile/")
         else:
@@ -75,10 +80,8 @@ def login_view(request):
 # ---------------- PROFILE ----------------
 @login_required
 def profile(request):
+    days = WorkDay.objects.filter(user=request.user).order_by("-start_time")
 
-    days = WorkDay.objects.filter(user=request.user)
-
-    # фильтр по дате
     date = request.GET.get("date")
 
     if date:
@@ -97,15 +100,17 @@ def profile(request):
         "total_hours": total_hours
     })
 
+
 # ---------------- START DAY ----------------
 @login_required
 def start_day(request):
-    user = request.user
-
-    active_day = WorkDay.objects.filter(user=user, is_active=True).first()
+    active_day = WorkDay.objects.filter(
+        user=request.user,
+        is_active=True
+    ).first()
 
     if not active_day:
-        WorkDay.objects.create(user=user)
+        WorkDay.objects.create(user=request.user)
 
     return redirect("/profile/")
 
@@ -113,9 +118,10 @@ def start_day(request):
 # ---------------- END DAY ----------------
 @login_required
 def end_day(request):
-    user = request.user
-
-    active_day = WorkDay.objects.filter(user=user, is_active=True).first()
+    active_day = WorkDay.objects.filter(
+        user=request.user,
+        is_active=True
+    ).first()
 
     if active_day:
         active_day.end_time = timezone.now()
@@ -137,17 +143,16 @@ def stats(request):
     })
 
 
-# ---------------- ADMIN PANEL ----------------
+# ---------------- ADMIN PANEL (/admin/) ----------------
 @login_required
-def admin(request):
+def admin_panel(request):
     if not request.user.is_staff:
         return redirect("/profile/")
 
     tab = request.GET.get("tab", "dashboard")
 
     users = User.objects.all()
-    workdays = WorkDay.objects.all()
-
+    workdays = WorkDay.objects.select_related("user").all()
 
     user_id = request.GET.get("user")
     date = request.GET.get("date")
@@ -165,21 +170,27 @@ def admin(request):
     })
 
 
+# ---------------- EDIT USER ----------------
 @login_required
 def edit_user(request, user_id):
     if not request.user.is_staff:
         return redirect("/profile/")
 
-    user = User.objects.get(id=user_id)
+    user = get_object_or_404(User, id=user_id)
 
     if request.method == "POST":
         user.username = request.POST.get("username")
         user.email = request.POST.get("email")
 
-        new_password = request.POST.get("password")
+        password = request.POST.get("password")
+        if password:
+            user.set_password(password)
 
-        if new_password:
-            user.set_password(new_password)
+        # 💰 зарплата (если добавил поле hourly_rate)
+        if hasattr(user, "hourly_rate"):
+            rate = request.POST.get("hourly_rate")
+            if rate:
+                user.hourly_rate = float(rate)
 
         user.save()
 
