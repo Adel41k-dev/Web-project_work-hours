@@ -228,3 +228,29 @@ def change_password(request):
 def logout_view(request):
     logout(request)
     return redirect("/")
+
+@login_required
+def account_view(request):
+    user = request.user
+
+    return render(request, "main/account.html", {
+        "user": user
+    })
+
+@login_required
+def edit_name(request):
+    if request.method == "POST":
+        request.user.username = request.POST.get("username")
+        request.user.save()
+        return redirect("account")
+
+    return render(request, "main/change_name.html")
+
+@login_required
+def edit_email(request):
+    if request.method == "POST":
+        request.user.email = request.POST.get("email")
+        request.user.save()
+        return redirect("account")
+
+    return render(request, "main/change_email.html")

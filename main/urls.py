@@ -2,14 +2,21 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.home),
-    path("login/", views.login_view),
-    path("register/", views.register),
-    path("change-password/", views.change_password),
-    path("profile/", views.profile),
-    path("admin/", views.admin),
-    path("logout/", views.logout_view),
-    path("start/", views.start_day),
-    path("end/", views.end_day),
-    path("admin/edit-user/<int:user_id>/", views.edit_user),
+    path("", views.home, name="home"),
+
+    path("login/", views.login_view, name="login"),
+    path("register/", views.register, name="register"),
+    path("logout/", views.logout_view, name="logout"),
+
+    path("profile/", views.profile, name="profile"),
+    path("account/", views.account_view, name="account"),
+    path("change-password/", views.change_password, name="change_password"),
+
+    path("start/", views.start_day, name="start_day"),
+    path("end/", views.end_day, name="end_day"),
+
+    path("admin-panel/", views.admin, name="admin"),
+    path("account/edit-name/", views.edit_name, name="edit_name"),
+    path("account/edit-email/", views.edit_email, name="edit_email"),
+
 ]
