@@ -14,8 +14,8 @@ urlpatterns = [
 
     path("start/", views.start_day, name="start_day"),
     path("end/", views.end_day, name="end_day"),
-
-    path("admin-panel/", views.admin, name="admin"),
+    path("edit_user/<int:user_id>", views.edit_user, name="edit_user"),
+    path("admin/", views.admin, name="admin"),
     path("account/edit-name/", views.edit_name, name="edit_name"),
     path("account/edit-email/", views.edit_email, name="edit_email"),
 

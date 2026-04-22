@@ -81,6 +81,27 @@ button:hover {
     color: #64748b;
     margin-bottom: 10px;
 }
+.bk {
+    margin: 20px 0;
+    width: 95%;
+    padding: 10px;
+    background: #2563eb;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+
+}
+a {
+    width: 100%;
+    padding: 10px;
+    background: #2563eb;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+}
 </style>
 </head>
 
@@ -113,6 +134,13 @@ button:hover {
             <input type="password" name="password" placeholder="Leave empty if no change">
 
             <button type="submit">Save Changes</button>
+            <tr>
+                <div class="bk">
+                    <a class="btn secondary right" href="{% url 'admin' %}">
+                        Back
+                    </a>
+                </div>
+            </tr>
         </form>
 
     </div>
