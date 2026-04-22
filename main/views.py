@@ -118,6 +118,8 @@ def admin(request):
     if not request.user.is_staff:
         return redirect("/profile/")
 
+    tab = request.GET.get("tab", "dashboard")
+
     users = User.objects.all()
     workdays = WorkDay.objects.select_related("user").all()
 
@@ -130,17 +132,16 @@ def admin(request):
     if date:
         workdays = workdays.filter(start_time__date=date)
 
-    # 📊 статистика всех пользователей
     total_hours = sum(w.get_hours() for w in workdays)
     total_money = sum(w.get_earnings() for w in workdays)
 
     return render(request, "main/admin.html", {
+        "tab": tab,
         "users": users,
         "workdays": workdays,
         "total_hours": total_hours,
         "total_money": total_money
     })
-
 
 # ---------------- EDIT USER ----------------
 @login_required
