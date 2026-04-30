@@ -113,8 +113,8 @@ a {
     <div class="logo">TimeTracker Admin</div>
 
     <div class="nav">
-        <a href="/admin/?tab=users" class="{% if tab == 'users' %}active{% endif %}">Users</a>
-        <a href="/admin/?tab=worklogs" class="{% if tab == 'worklogs' %}active{% endif %}">Work Logs</a>
+        <a href="/admin-42829/?tab=users" class="{% if tab == 'users' %}active{% endif %}">Users</a>
+        <a href="/admin-42829/?tab=worklogs" class="{% if tab == 'worklogs' %}active{% endif %}">Work Logs</a>
         <a href="/logout/" class="logout">Logout</a>
     </div>
 
@@ -136,14 +136,14 @@ a {
         </tr>
 
         {% for u in users %}
-        {% if u.username != 'admin' %}
+
         <tr>
             <td>{{ u.username }}</td>
             <td>{{ u.email }}</td>
             <td class="money">{{ u.hourly_rate }}$/h</td>
             <td><div class="edit"><a  href="{% url 'edit_user' u.id %}">Edit</a></div></td>
         </tr>
-        {% endif %}
+
         {% endfor %}
     </table>
 </div>

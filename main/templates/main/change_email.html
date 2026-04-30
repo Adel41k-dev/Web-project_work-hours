@@ -75,6 +75,9 @@ a {
 
 <div class="container">
     <div class="card">
+        {% if error %}
+            <p style="color:red;">{{ error }}</p>
+        {% endif %}
         <h2>Change email</h2>
 
         <form method="post">

@@ -3,7 +3,9 @@ from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.password_validation import validate_password
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from .models import WorkDay
 
 User = get_user_model()
@@ -24,16 +26,34 @@ def register(request):
         password1 = request.POST.get("password1", "")
         password2 = request.POST.get("password2", "")
 
+
         if password1 != password2:
             error = "Passwords do not match"
+
 
         elif User.objects.filter(username=username).exists():
             error = "Username exists"
 
+
         elif User.objects.filter(email=email).exists():
             error = "Email exists"
 
+
         else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                error = "Invalid email address"
+
+
+        if not error:
+            try:
+                validate_password(password1)
+            except ValidationError as e:
+                error = " ".join(e.messages)
+
+
+        if not error:
             User.objects.create_user(
                 username=username,
                 email=email,
@@ -42,7 +62,6 @@ def register(request):
             return redirect("/login/")
 
     return render(request, "main/register.html", {"error": error})
-
 
 # ---------------- LOGIN ----------------
 def login_view(request):
@@ -57,11 +76,24 @@ def login_view(request):
 
         if user:
             login(request, user)
-            return redirect("/admin/" if user.is_staff else "/profile/")
+
+            # 🔥 СУПЕРПОЛЬЗОВАТЕЛЬ → сразу в админку
+            if user.is_superuser:
+                return redirect("/admin/")
+
+            # обычный пользователь
+            return redirect("/profile/")
         else:
             error = "Wrong credentials"
 
     return render(request, "main/login.html", {"error": error})
+
+# ----------------ADMIN REDICT-------------
+
+from django.shortcuts import redirect
+
+def admin_redirect(request):
+    return redirect('/admin-42829/')
 
 
 # ---------------- PROFILE ----------------
@@ -147,12 +179,12 @@ def end_day(request):
 # ---------------- ADMIN PANEL (🔥 UPGRADED) ----------------
 @login_required
 def admin(request):
-    if not request.user.is_staff:
+    if not request.user.is_superuser:
         return redirect("/profile/")
 
     tab = request.GET.get("tab", "users")
 
-    users = User.objects.all()
+    users = User.objects.exclude(is_superuser=True)
     workdays = WorkDay.objects.select_related("user").all()
 
     # ---------------- FILTERS ----------------
@@ -206,22 +238,58 @@ def edit_user(request, user_id):
         return redirect("/profile/")
 
     user = get_object_or_404(User, id=user_id)
+    error = None
 
     if request.method == "POST":
-        user.username = request.POST.get("username")
-        user.email = request.POST.get("email")
+        new_username = request.POST.get("username")
+        new_email = request.POST.get("email")
+        password = request.POST.get("password")
 
-        if request.POST.get("password"):
-            user.set_password(request.POST.get("password"))
+        # ---------------- USERNAME ----------------
+        if new_username != user.username:
+            if User.objects.exclude(id=user.id).filter(username=new_username).exists():
+                error = "Username already exists"
+            else:
+                user.username = new_username
 
-        rate = request.POST.get("hourly_rate")
-        if rate:
-            user.hourly_rate = float(rate)
+        # ---------------- EMAIL ----------------
+        if not error and new_email != user.email:
+            from django.core.validators import validate_email
+            from django.core.exceptions import ValidationError
 
-        user.save()
-        return redirect("/admin/")
+            try:
+                validate_email(new_email)
+            except ValidationError:
+                error = "Invalid email address"
 
-    return render(request, "main/edit_user.html", {"user": user})
+            if not error and User.objects.exclude(id=user.id).filter(email=new_email).exists():
+                error = "Email already exists"
+
+            if not error:
+                user.email = new_email
+
+        # ---------------- PASSWORD ----------------
+        if not error and password:
+            try:
+                from django.contrib.auth.password_validation import validate_password
+                validate_password(password, user)
+                user.set_password(password)
+            except ValidationError as e:
+                error = " ".join(e.messages)
+
+        # ---------------- SAVE ----------------
+        if not error:
+            rate = request.POST.get("hourly_rate")
+            if rate:
+                user.hourly_rate = float(rate)
+
+            user.save()
+            return redirect("/admin/")
+
+    return render(request, "main/edit_user.html", {
+        "user": user,
+        "error": error
+    })
 
 
 # ---------------- CHANGE PASSWORD ----------------
@@ -230,17 +298,27 @@ def change_password(request):
     error = None
 
     if request.method == "POST":
-        if not request.user.check_password(request.POST.get("old")):
+        old = request.POST.get("old")
+        new1 = request.POST.get("new1")
+        new2 = request.POST.get("new2")
+
+        if not request.user.check_password(old):
             error = "Wrong old password"
 
-        elif request.POST.get("new1") != request.POST.get("new2"):
+        elif new1 != new2:
             error = "Passwords do not match"
 
         else:
-            request.user.set_password(request.POST.get("new1"))
-            request.user.save()
-            login(request, request.user)
-            return redirect("/profile/")
+            try:
+                validate_password(new1, request.user)  # 🔐 проверка
+            except ValidationError as e:
+                error = " ".join(e.messages)
+
+            if not error:
+                request.user.set_password(new1)
+                request.user.save()
+                login(request, request.user)
+                return redirect("/profile/")
 
     return render(request, "main/change_password.html", {"error": error})
 
@@ -269,12 +347,34 @@ def edit_name(request):
 
 @login_required
 def edit_email(request):
-    if request.method == "POST":
-        request.user.email = request.POST.get("email")
-        request.user.save()
-        return redirect("account")
+    error = None
 
-    return render(request, "main/change_email.html")
+    if request.method == "POST":
+        new_email = request.POST.get("email", "").strip()
+
+        # 1. формат email
+        try:
+            validate_email(new_email)
+        except ValidationError:
+            error = "Invalid email address"
+
+        # 2. такой же как старый
+        if not error and new_email == request.user.email:
+            error = "This is already your current email"
+
+        # 3. уже занят другим пользователем
+        if not error and User.objects.exclude(id=request.user.id).filter(email=new_email).exists():
+            error = "Email already exists"
+
+        # 4. сохранить
+        if not error:
+            request.user.email = new_email
+            request.user.save()
+            return redirect("account")
+
+    return render(request, "main/change_email.html", {
+        "error": error
+    })
 
 
 @login_required

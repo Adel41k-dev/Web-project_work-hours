@@ -115,7 +115,9 @@ a {
 
         <form method="POST">
             {% csrf_token %}
-
+            {% if error %}
+                <p style="color:red;">{{ error }}</p>
+            {% endif %}
             <div class="label">Username</div>
             <input name="username" value="{{ user.username }}">
 
