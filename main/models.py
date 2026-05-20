@@ -8,6 +8,9 @@ class User(AbstractUser):
     position = models.CharField(max_length=100, blank=True, null=True)
     is_employee = models.BooleanField(default=True)
 
+    # Новый столбец для интеграции с Telegram-ботом
+    telegram_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
+
     # 💰 зарплата в час
     hourly_rate = models.FloatField(default=100)
 

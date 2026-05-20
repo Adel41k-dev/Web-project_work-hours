@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +122,14 @@ USE_TZ = False
 STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# Telegram Bot
+TELEGRAM_BOT_TOKEN = "8762303781:AAGLXWVybZq-5AZxHrl_9rIz3nHfapFJ3KU"
+ADMIN_TELEGRAM_ID = 6114203776
+WORK_START_HOUR = 9
+WORK_DURATION_HOURS = 10
+
+# Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'

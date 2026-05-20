@@ -22,7 +22,7 @@ def register(request):
 
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
-        email = request.POST.get("email", "").strip()
+        telegram_id = request.POST.get("telegram_id", "").strip()
         password1 = request.POST.get("password1", "")
         password2 = request.POST.get("password2", "")
 
@@ -35,16 +35,6 @@ def register(request):
             error = "Username exists"
 
 
-        elif User.objects.filter(email=email).exists():
-            error = "Email exists"
-
-
-        else:
-            try:
-                validate_email(email)
-            except ValidationError:
-                error = "Invalid email address"
-
 
         if not error:
             try:
@@ -56,7 +46,7 @@ def register(request):
         if not error:
             User.objects.create_user(
                 username=username,
-                email=email,
+                telegram_id = telegram_id,
                 password=password1
             )
             return redirect("/login/")
@@ -242,7 +232,7 @@ def edit_user(request, user_id):
 
     if request.method == "POST":
         new_username = request.POST.get("username")
-        new_email = request.POST.get("email")
+        new_tg = request.POST.get("telegram_id")
         password = request.POST.get("password")
 
         # ---------------- USERNAME ----------------
@@ -252,21 +242,18 @@ def edit_user(request, user_id):
             else:
                 user.username = new_username
 
-        # ---------------- EMAIL ----------------
-        if not error and new_email != user.email:
-            from django.core.validators import validate_email
-            from django.core.exceptions import ValidationError
+        # ---------------- TELEGRAM ID ----------------
+        if not error:
+            new_tg = request.POST.get("telegram_id", "").strip()
 
-            try:
-                validate_email(new_email)
-            except ValidationError:
-                error = "Invalid email address"
+            if new_tg != user.telegram_id:
 
-            if not error and User.objects.exclude(id=user.id).filter(email=new_email).exists():
-                error = "Email already exists"
+                # проверка: уже используется другим пользователем
+                if User.objects.exclude(id=user.id).filter(telegram_id=new_tg).exists():
+                    error = "Telegram ID already exists"
 
-            if not error:
-                user.email = new_email
+                if not error:
+                    user.telegram_id = new_tg if new_tg else None
 
         # ---------------- PASSWORD ----------------
         if not error and password:
@@ -350,27 +337,25 @@ def edit_email(request):
     error = None
 
     if request.method == "POST":
-        new_email = request.POST.get("email", "").strip()
+        new_telegram_id = request.POST.get("telegram_id", "").strip()
 
-        # 1. формат email
-        try:
-            validate_email(new_email)
-        except ValidationError:
-            error = "Invalid email address"
-
-        # 2. такой же как старый
-        if not error and new_email == request.user.email:
-            error = "This is already your current email"
-
-        # 3. уже занят другим пользователем
-        if not error and User.objects.exclude(id=request.user.id).filter(email=new_email).exists():
-            error = "Email already exists"
-
-        # 4. сохранить
         if not error:
-            request.user.email = new_email
-            request.user.save()
-            return redirect("account")
+            new_tg = request.POST.get("telegram_id", "").strip()
+
+            if new_tg != User.telegram_id:
+
+                # проверка: уже используется другим пользователем
+                if User.objects.exclude(id=User.id).filter(telegram_id=new_tg).exists():
+                    error = "Telegram ID already exists"
+
+                if not error:
+                    user.telegram_id = new_tg if new_tg else None
+                    request.user.save()
+                    return redirect("account")
+
+
+
+
 
     return render(request, "main/change_email.html", {
         "error": error
