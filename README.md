@@ -1,9 +1,5 @@
 ﻿# Web-project_work-hours
 # work_hour
-# Web-project_work-hours
-# work_hour
-# Web-project_work-hours
-# work_hour
 #  README.md
 
 ## 1. Project Name
